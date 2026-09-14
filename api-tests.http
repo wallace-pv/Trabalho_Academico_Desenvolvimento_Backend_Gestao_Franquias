@@ -1,0 +1,387 @@
+### ==============================================================================
+### SISTEMA DE GESTÃO DE FRANQUIAS - SUÍTE DE TESTES HTTP (REST CLIENT)
+### Aluno: WALLACE F G SILVA | RU: 5146520
+### Disciplina: Desenvolvimento Web Back-end (UNINTER - 2026)
+### Orientador: Prof. Rodrigo da S. do Nascimento
+### ==============================================================================
+
+@baseUrl = http://localhost:5086/api
+
+### ------------------------------------------------------------------------------
+### 1. AUTENTICAÇÃO E PERFIS DE ACESSO
+### ------------------------------------------------------------------------------
+
+### 1.1 Login - Administrador da Franqueadora
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@franquias.com.br",
+  "senha": "Admin@123"
+}
+
+### Armazenar Token do Administrador
+@adminToken = {{loginAdmin.response.body.token}}
+
+### 1.2 Login - Gestor da Unidade (SP Moema)
+# @name loginGestorSP
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "gestor.sp@franquias.com.br",
+  "senha": "Gestor@123"
+}
+
+### Armazenar Token do Gestor
+@gestorToken = {{loginGestorSP.response.body.token}}
+
+### 1.3 Login - Operador da Unidade (SP Moema)
+# @name loginOperadorSP
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "operador.sp@franquias.com.br",
+  "senha": "Operador@123"
+}
+
+### Armazenar Token do Operador
+@operadorToken = {{loginOperadorSP.response.body.token}}
+
+### 1.4 Listar Usuários Cadastrados (Admin)
+GET {{baseUrl}}/auth/usuarios
+Authorization: Bearer {{adminToken}}
+
+### 1.5 Cadastrar Novo Usuário (Admin)
+POST {{baseUrl}}/auth/registrar
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "nome": "Mariana Oliveira",
+  "email": "mariana.oliveira@franquias.com.br",
+  "senha": "SenhaForte@2026",
+  "perfil": "Operador",
+  "unidadeId": 1
+}
+
+### 1.6 Ativar / Inativar Usuário (Admin)
+PATCH {{baseUrl}}/auth/usuarios/3/status?ativo=true
+Authorization: Bearer {{adminToken}}
+
+### ------------------------------------------------------------------------------
+### 2. FRANQUEADORA E UNIDADES FRANQUEADAS
+### ------------------------------------------------------------------------------
+
+### 2.1 Consultar Dados da Franqueadora Matriz
+GET {{baseUrl}}/franqueadoras
+Authorization: Bearer {{adminToken}}
+
+### 2.2 Listar Todas as Unidades Franqueadas (Ativas e Inativas)
+GET {{baseUrl}}/unidades
+Authorization: Bearer {{adminToken}}
+
+### 2.3 Filtrar Unidades Franqueadas por Cidade ou Nome
+GET {{baseUrl}}/unidades?termoBusca=Curitiba
+Authorization: Bearer {{adminToken}}
+
+### 2.4 Obter Detalhes da Unidade por ID
+GET {{baseUrl}}/unidades/1
+Authorization: Bearer {{adminToken}}
+
+### 2.5 Cadastrar Nova Unidade Franqueada (Admin)
+POST {{baseUrl}}/unidades
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "franqueadoraId": 1,
+  "codigoUnidade": "FRANQ-BH01",
+  "nome": "Café Gourmet - Unidade Savassi BH",
+  "cnpj": "56.789.012/0001-34",
+  "email": "savassi@cafegourmetbrasil.com.br",
+  "telefone": "(31) 3280-4400",
+  "logradouro": "Rua Fernandes Tourinho",
+  "numero": "350",
+  "complemento": "Loja A",
+  "bairro": "Savassi",
+  "cidade": "Belo Horizonte",
+  "estado": "MG",
+  "cep": "30112-000",
+  "dataInicioOperacao": "2026-09-01T00:00:00Z",
+  "percentualRoyalty": 5.5,
+  "responsavel": {
+    "nome": "Camila Resende",
+    "cpf": "456.789.012-34",
+    "email": "camila.resende@franquias.com.br",
+    "telefone": "(31) 98765-1122"
+  }
+}
+
+### 2.6 Teste de Regra: Bloquear Cadastro de Unidade com CNPJ Duplicado (Erro Esperado 400)
+POST {{baseUrl}}/unidades
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "franqueadoraId": 1,
+  "codigoUnidade": "FRANQ-DUP",
+  "nome": "Unidade Duplicada",
+  "cnpj": "23.456.789/0001-01",
+  "email": "teste@duplicado.com",
+  "telefone": "(11) 9999-9999",
+  "logradouro": "Rua Teste",
+  "numero": "1",
+  "bairro": "Centro",
+  "cidade": "SP",
+  "estado": "SP",
+  "cep": "01000-000",
+  "percentualRoyalty": 5.0,
+  "responsavel": {
+    "nome": "Responsavel Teste",
+    "cpf": "000.000.000-00",
+    "email": "resp@teste.com",
+    "telefone": "11999999999"
+  }
+}
+
+### 2.7 Inativar Unidade Franqueada (Soft Delete)
+DELETE {{baseUrl}}/unidades/3
+Authorization: Bearer {{adminToken}}
+
+### ------------------------------------------------------------------------------
+### 3. CATÁLOGO DE PRODUTOS, SERVIÇOS E CATEGORIAS
+### ------------------------------------------------------------------------------
+
+### 3.1 Listar Categorias
+GET {{baseUrl}}/categorias
+Authorization: Bearer {{adminToken}}
+
+### 3.2 Listar Catálogo Completo de Produtos e Serviços
+GET {{baseUrl}}/produtos
+Authorization: Bearer {{adminToken}}
+
+### 3.3 Filtrar Produtos por Categoria e Nome
+GET {{baseUrl}}/produtos?categoriaId=1&termoBusca=Blend
+Authorization: Bearer {{adminToken}}
+
+### 3.4 Cadastrar Novo Produto Padronizado (Admin)
+POST {{baseUrl}}/produtos
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "categoriaId": 1,
+  "fornecedorId": 1,
+  "codigoSKU": "CAF-DRP-003",
+  "nome": "Drip Coffee Especial Sachê Caixa c/ 10 un",
+  "descricao": "Café em sachê filtrado individual para preparo rápido",
+  "precoBase": 45.00,
+  "estoqueMinimoPadrao": 25,
+  "eServico": false
+}
+
+### ------------------------------------------------------------------------------
+### 4. FORNECEDORES HOMOLOGADOS
+### ------------------------------------------------------------------------------
+
+### 4.1 Listar Fornecedores
+GET {{baseUrl}}/fornecedores
+Authorization: Bearer {{adminToken}}
+
+### 4.2 Cadastrar Fornecedor Homologado
+POST {{baseUrl}}/fornecedores
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "razaoSocial": "Embalagens Sustentáveis do Brasil S.A.",
+  "nomeFantasia": "EcoPack Franquias",
+  "cnpj": "77.888.999/0001-11",
+  "email": "comercial@ecopack.com.br",
+  "telefone": "(19) 3870-1000",
+  "cidade": "Campinas",
+  "estado": "SP"
+}
+
+### ------------------------------------------------------------------------------
+### 5. ESTOQUE POR UNIDADE E MOVIMENTAÇÕES
+### ------------------------------------------------------------------------------
+
+### 5.1 Consultar Saldo de Estoque da Unidade SP Moema
+GET {{baseUrl}}/estoques/unidade/1
+Authorization: Bearer {{gestorToken}}
+
+### 5.2 Consultar Itens com Estoque Abaixo do Mínimo na Unidade SP Moema
+GET {{baseUrl}}/estoques/unidade/1?apenasAbaixoDoMinimo=true
+Authorization: Bearer {{gestorToken}}
+
+### 5.3 Registrar Entrada de Estoque na Unidade
+POST {{baseUrl}}/estoques/movimentar
+Authorization: Bearer {{gestorToken}}
+Content-Type: application/json
+
+{
+  "unidadeId": 1,
+  "produtoId": 2,
+  "tipo": "Entrada",
+  "quantidade": 30,
+  "observacao": "Recebimento de lote do fornecedor NF 10452"
+}
+
+### 5.4 Teste de Regra: Bloquear Movimentação que resulte em Saldo Negativo (Erro Esperado 400)
+POST {{baseUrl}}/estoques/movimentar
+Authorization: Bearer {{operadorToken}}
+Content-Type: application/json
+
+{
+  "unidadeId": 1,
+  "produtoId": 1,
+  "tipo": "SaidaVenda",
+  "quantidade": 999999,
+  "observacao": "Tentativa de saída superior ao estoque disponível"
+}
+
+### 5.5 Consultar Histórico de Movimentações de Estoque
+GET {{baseUrl}}/estoques/movimentacoes?unidadeId=1
+Authorization: Bearer {{gestorToken}}
+
+### ------------------------------------------------------------------------------
+### 6. VENDAS E ITENS DE VENDA
+### ------------------------------------------------------------------------------
+
+### 6.1 Registrar Nova Venda com Atualização Automática de Estoque
+# @name registrarVenda
+POST {{baseUrl}}/vendas
+Authorization: Bearer {{operadorToken}}
+Content-Type: application/json
+
+{
+  "unidadeId": 1,
+  "observacao": "Venda balcão - pagamento PIX",
+  "itens": [
+    {
+      "produtoId": 1,
+      "quantidade": 2
+    },
+    {
+      "produtoId": 3,
+      "quantidade": 1
+    }
+  ]
+}
+
+### 6.2 Teste de Regra: Bloquear Venda em Unidade Inativa (Erro Esperado 400)
+POST {{baseUrl}}/vendas
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "unidadeId": 3,
+  "observacao": "Tentativa de venda na unidade inativa RJ",
+  "itens": [
+    {
+      "produtoId": 1,
+      "quantidade": 1
+    }
+  ]
+}
+
+### 6.3 Consultar Vendas por Unidade e Intervalo de Datas
+GET {{baseUrl}}/vendas?unidadeId=1&dataInicio=2026-09-01T00:00:00Z&dataFim=2026-09-30T23:59:59Z
+Authorization: Bearer {{gestorToken}}
+
+### ------------------------------------------------------------------------------
+### 7. TAXAS, ROYALTIES E FINANCEIRO
+### ------------------------------------------------------------------------------
+
+### 7.1 Apurar Royalties do Mês sobre o Faturamento da Unidade (Admin)
+POST {{baseUrl}}/royalties/apurar
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "unidadeId": 1,
+  "mesReferencia": 9,
+  "anoReferencia": 2026,
+  "observacao": "Fechamento mensal de faturamento e royalties"
+}
+
+### 7.2 Listar Lançamentos de Royalties
+GET {{baseUrl}}/royalties?ano=2026
+Authorization: Bearer {{adminToken}}
+
+### 7.3 Registrar Pagamento / Quitação de Royalty
+POST {{baseUrl}}/royalties/2/pagar
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "dataPagamento": "2026-09-14T10:00:00Z",
+  "observacao": "Comprovante de transferência bancária TED 88392"
+}
+
+### ------------------------------------------------------------------------------
+### 8. CHAMADOS E SUPORTE À FRANQUIA
+### ------------------------------------------------------------------------------
+
+### 8.1 Abrir Chamado de Suporte (Unidade para Franqueadora)
+POST {{baseUrl}}/chamados
+Authorization: Bearer {{gestorToken}}
+Content-Type: application/json
+
+{
+  "unidadeId": 1,
+  "titulo": "Falha na conexão do leitor de código de barras",
+  "descricao": "O equipamento de leitura de SKU do PDV 2 parou de responder após reinicialização.",
+  "categoria": "SuporteTI",
+  "prioridade": "Alta"
+}
+
+### 8.2 Listar Chamados em Aberto
+GET {{baseUrl}}/chamados?status=Aberto
+Authorization: Bearer {{adminToken}}
+
+### 8.3 Responder e Concluir Chamado (Admin)
+PUT {{baseUrl}}/chamados/1/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "Resolvido",
+  "respostaSolucao": "Driver atualizado com sucesso e leitor recalibrado remotamente."
+}
+
+### ------------------------------------------------------------------------------
+### 9. RELATÓRIOS E INDICADORES GERENCIAIS
+### ------------------------------------------------------------------------------
+
+### 9.1 Faturamento Consolidado por Unidade e Período
+GET {{baseUrl}}/relatorios/faturamento?unidadeId=1&dataInicio=2026-09-01T00:00:00Z&dataFim=2026-09-30T23:59:59Z
+Authorization: Bearer {{adminToken}}
+
+### 9.2 Ranking de Unidades por Faturamento Decrescente
+GET {{baseUrl}}/relatorios/ranking-unidades
+Authorization: Bearer {{adminToken}}
+
+### 9.3 Total de Royalties Gerados e Situação de Pagamento
+GET {{baseUrl}}/relatorios/royalties?ano=2026
+Authorization: Bearer {{adminToken}}
+
+### 9.4 Produtos e Serviços Mais Vendidos (Top Ranking)
+GET {{baseUrl}}/relatorios/produtos-mais-vendidos?top=5
+Authorization: Bearer {{adminToken}}
+
+### 9.5 Itens com Estoque Crítico na Rede
+GET {{baseUrl}}/relatorios/estoque-critico
+Authorization: Bearer {{adminToken}}
+
+### 9.6 Contagem de Chamados por Status
+GET {{baseUrl}}/relatorios/chamados-status
+Authorization: Bearer {{adminToken}}
+
+### 9.7 Dashboard Corporativo da Rede de Franquias
+GET {{baseUrl}}/relatorios/dashboard
+Authorization: Bearer {{adminToken}}
