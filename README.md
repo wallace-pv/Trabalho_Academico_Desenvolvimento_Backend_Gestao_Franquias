@@ -4,6 +4,22 @@
 **Instituição:** Centro Universitário Internacional UNINTER (Ano 2026)  
 **Estudante:** WALLACE F G SILVA — **RU:** 5146520  
 **Professor Orientador:** Prof. Rodrigo da S. do Nascimento  
+**Repositório Oficial no GitHub:** [https://github.com/wallace-pv/Trabalho_Academico_Desenvolvimento_Backend_Gestao_Franquias](https://github.com/wallace-pv/Trabalho_Academico_Desenvolvimento_Backend_Gestao_Franquias)
+
+---
+
+> ### 🎓 Guia Rápido de Avaliação para o Professor:
+> 1. Clone o repositório ou abra a pasta do projeto:
+>    ```bash
+>    git clone https://github.com/wallace-pv/Trabalho_Academico_Desenvolvimento_Backend_Gestao_Franquias.git
+>    cd Trabalho_Academico_Desenvolvimento_Backend_Gestao_Franquias
+>    ```
+> 2. Execute a API com um único comando (o banco SQLite e os dados de exemplo são criados automaticamente):
+>    ```bash
+>    dotnet run --project Franquias.Api
+>    ```
+> 3. Abra o navegador em: 👉 **[http://localhost:5086/](http://localhost:5086/)**
+> 4. Faça login no Swagger em `POST /api/Auth/login` com o usuário **`admin@franquias.com.br`** / senha **`Admin@123`**, copie o token e clique no botão verde **Authorize** (`Bearer {token}`). Todos os relatórios e endpoints estarão prontos para teste imediato!
 
 ---
 

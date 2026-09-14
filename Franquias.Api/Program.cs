@@ -86,8 +86,9 @@ app.UseSwaggerUI(c =>
     c.DocumentTitle = "UNINTER - Gestão de Franquias API";
 });
 
-// Redirecionamento da rota raiz para o Swagger UI
+// Redirecionamento da rota raiz e index.html para o Swagger UI
 app.MapGet("/", () => Results.Redirect("/swagger"));
+app.MapGet("/index.html", () => Results.Redirect("/swagger"));
 
 app.UseCors("AllowAll");
 

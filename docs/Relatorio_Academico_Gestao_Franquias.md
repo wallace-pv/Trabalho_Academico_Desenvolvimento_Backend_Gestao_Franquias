@@ -10,7 +10,7 @@
 **Estudante:** WALLACE F G SILVA  
 **RU:** 5146520  
 **Professor Orientador:** Prof. Rodrigo da S. do Nascimento  
-**Link do Repositório GitHub:** https://github.com/wallace-silva/gestao-franquias-api *(ou link a ser preenchido na entrega)*  
+**Link do Repositório GitHub:** [https://github.com/wallace-pv/Trabalho_Academico_Desenvolvimento_Backend_Gestao_Franquias](https://github.com/wallace-pv/Trabalho_Academico_Desenvolvimento_Backend_Gestao_Franquias)  
 
 ---
 
